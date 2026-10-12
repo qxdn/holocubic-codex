@@ -1,0 +1,10 @@
+name = Codex Quota
+name_zh_cn = Codex 额度
+name_en = Codex Quota
+kind = app
+category = tool
+catalog_scope = community
+entry = main.lua
+icon = main.png
+description = 5h and Weekly remaining quota
+version = 1.0.0

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Codex Quota UI Preview</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: #20242a; color: #f4f8fb; font-family: system-ui, sans-serif; display: grid; place-content: center; gap: 24px; }
+  .screen { position: relative; width: 320px; height: 240px; background: #101820; margin: auto; }
+  .row { position: absolute; left: 16px; width: 288px; height: 62px; }
+  .row:first-child { top: 42px; }
+  .row:last-child { top: 152px; }
+  .name,.value { position: absolute; top: 0; font-size: 20px; line-height: 24px; }
+  .name { left: 0; }
+  .value { right: 0; }
+  .cells { position: absolute; top: 36px; left: 0; width: 288px; height: 26px; }
+  .cell { position: absolute; width: 12px; height: 26px; background: #28343f; }
+  .controls { width: 320px; display: grid; gap: 14px; }
+  .control { display: grid; grid-template-columns: 60px 1fr 44px; gap: 8px; align-items: center; }
+  input { width: 100%; accent-color: #67e5a5; }
+  button { padding: 8px; background: #28343f; color: #f4f8fb; border: 0; cursor: pointer; }
+  p { margin: 0; max-width: 320px; color: #a7bdcb; font-size: 13px; line-height: 1.6; }
+</style>
+<div class="screen" aria-label="320×240 设备界面预览">
+  <div class="row"><span class="name">5h</span><span class="value"></span><div class="cells"></div></div>
+  <div class="row"><span class="name">Weekly</span><span class="value"></span><div class="cells"></div></div>
+</div>
+<div class="controls">
+  <label class="control">5h <input type="range" min="0" max="100" value="75"><output>75%</output></label>
+  <label class="control">Weekly <input type="range" min="0" max="100" value="40"><output>40%</output></label>
+  <button id="unknown">切换额度不可用 / 正常</button>
+  <p>本地模拟预览，使用示例额度。布局和颜色对应 Lua 页面；浏览器字体与设备 Montserrat 字体可能有差别。滑块和按钮只用于预览。</p>
+</div>
+<script>
+  let unknown = false;
+  const rows = [...document.querySelectorAll('.row')];
+  const inputs = [...document.querySelectorAll('input')];
+  rows.forEach(row => {
+    for (let i = 0; i < 20; i++) {
+      const cell = document.createElement('span');
+      cell.className = 'cell';
+      cell.style.left = Math.floor(i * 276 / 19) + 'px';
+      row.querySelector('.cells').append(cell);
+    }
+  });
+  function render() {
+    rows.forEach((row, index) => {
+      const n = Number(inputs[index].value);
+      const color = n <= 10 ? '#ff7b7b' : n <= 30 ? '#ffd166' : '#67e5a5';
+      const value = row.querySelector('.value');
+      value.textContent = unknown ? '--' : n + '%';
+      value.style.color = unknown ? '#f4f8fb' : color;
+      inputs[index].nextElementSibling.textContent = n + '%';
+      [...row.querySelectorAll('.cell')].forEach((cell, i) => {
+        const fraction = unknown ? 0 : Math.max(0, Math.min(1, n / 5 - i));
+        cell.style.background = fraction > 0 ? color : '#28343f';
+        cell.style.opacity = fraction > 0 ? Math.floor(80 + 175 * fraction) / 255 : 1;
+      });
+    });
+  }
+  inputs.forEach(input => input.addEventListener('input', render));
+  document.querySelector('#unknown').addEventListener('click', () => { unknown = !unknown; render(); });
+  render();
+</script>
+</html>
